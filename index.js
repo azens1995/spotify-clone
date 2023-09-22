@@ -65,19 +65,16 @@ app.get('/callback', (req, res) => {
   })
     .then((response) => {
       if (response.status == 200) {
-        const { refresh_token } = response.data;
-        axios
-          .get(
-            `http://localhost:8888/refresh_token?refresh_token=${refresh_token}`
-          )
-          .then((response) => {
-            res.send(`<pre>${JSON.stringify(response.data, null, 2)}</pre>`);
-          })
-          .catch((error) => {
-            res.send(error);
-          });
+        const { access_token, refresh_token } = response.data;
+        // Redirect to the react application
+        // Add tokens in query params during redirect
+        const queryParams = querystring.stringify({
+          access_token,
+          refresh_token,
+        });
+        res.redirect(`http://localhost:3000/?${queryParams}`);
       } else {
-        res.send(response);
+        res.redirect(`/?${querystring.stringify({ error: 'invalid_token' })}`);
       }
     })
     .catch((error) => {
